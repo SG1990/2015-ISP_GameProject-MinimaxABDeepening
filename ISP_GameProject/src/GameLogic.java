@@ -14,6 +14,7 @@ public class GameLogic implements IGameLogic {
         this.y = y;
         this.playerID = playerID;
         board = new char[x][y];
+        
         //TODO Write your implementation for this method
     }
 	
@@ -24,7 +25,15 @@ public class GameLogic implements IGameLogic {
 
 
     public void insertCoin(int column, int playerID) {
-        //TODO Write your implementation for this method	
+        for(int i = x - 1 ; i >= 0 ; i--)
+        {
+        	if(board[i][column] == 0)
+        	{
+        		board[i][column] = playerID;
+        		break;
+        	}
+        		
+        }
     }
 
     public int decideNextMove() {
