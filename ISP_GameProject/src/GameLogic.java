@@ -3,7 +3,7 @@ public class GameLogic implements IGameLogic {
     private int x = 0;
     private int y = 0;
     private int playerID;
-    private char[][] board;
+    private int[][] board;
     
     public GameLogic() {
         //TODO Write your implementation for this method
@@ -13,13 +13,30 @@ public class GameLogic implements IGameLogic {
         this.x = x;
         this.y = y;
         this.playerID = playerID;
-        board = new char[x][y];
-        
+        board = new int[x][y];
+        for(int i = 0; i < x; i++){
+			for(int n = 0; n < x; n++){
+				board[i][n] = 0;
+			}
+    	}
         //TODO Write your implementation for this method
     }
 	
+    private boolean checkRow(){
+    	for(int i = 0; i < x; i++){
+			for(int n = 0; n < x; n++){
+				//if(board[i][n] == );
+			}
+			
+    	}
+    	return false;
+    }
+    
+    
     public Winner gameFinished() {
-        //TODO Write your implementation for this method
+    	//TODO Write your implementation for this method
+    	checkRow();
+        
         return Winner.NOT_FINISHED;
     }
 
