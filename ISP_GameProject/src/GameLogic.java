@@ -121,14 +121,6 @@ public class GameLogic implements IGameLogic {
     	return false;
     }
     
-    private boolean boardIsFull(){
-    	boolean isFull = true;
-    	for(int i = 0; i < x; i++){
-    		if(board[i][y-1] == 0){ isFull = false; }
-    	}
-    	return isFull;
-    }
-    
     private void mirrorColumns(){
     	int[][] tmpBoard = new int[x][y];
     	for(int i = 0; i < x; i++){
@@ -145,22 +137,61 @@ public class GameLogic implements IGameLogic {
     
     public Winner gameFinished() {
     	mirrorColumns();
-    	Winner msg;
-    	if(checkAllDirections(playerID)){ 
-    		System.out.println("HURRA!");  
-    		if(playerID == 1){return Winner.PLAYER1;}
-    		else {return Winner.PLAYER2;}
-    		
-    		}
-    	
-    	if(boardIsFull()){ System.out.println("Tie!"); return Winner.TIE; }
-    	else{ System.out.println("Next round..."); msg = Winner.NOT_FINISHED; }
-    	
+    	if(checkAllDirections(1)){ System.out.println("YEPPI!"); return Winner.PLAYER1; }
+    	if(checkAllDirections(2)){ System.out.println("HURRA!"); return Winner.PLAYER2; }
     	mirrorColumns();
-    	return msg;
+    	
+    	if(boardIsFull()){ System.out.println("TIE!"); return Winner.TIE; }
+    	else{ System.out.println("Next round..."); return Winner.NOT_FINISHED; }
     }
     
-    private Winner gameFinishedMM(int id, int col) {
+    private boolean boardIsFull(){
+    	boolean isFull = true;
+    	for(int i = 0; i < x; i++){
+    		if(board[i][0] == 0){ isFull = false; }
+    	}
+    	return isFull;
+    }
+    
+    
+    private boolean checkLocal(int id, int col, int x, int row, int y, int[][] board){
+    	boolean win = true;
+    	for(int i = 1; i < 4; i++){
+    		try{
+    			if(board[col + (x * i)][row + (y * i)] != id){ win = false; }
+    		}catch(IndexOutOfBoundsException e){ win = false; }
+    	}
+    	return win;    	
+    }
+    
+    /**
+     * 
+     * @param id, which player
+     * @param col, last column added
+     * @param board
+     * @return
+     */
+    private Winner gameFinishedMM(int id, int col, int[][] board) {
+    	int row = -1; //getRow
+    	for(int i = 0; i < y; i++){
+    		if(board[col][i] != 0){ row = i;} 
+    	}
+    	
+    	boolean win = false;
+    	if(checkLocal(id, col, 0 , row, 1 , board)){ win = true; }
+    	if(checkLocal(id, col, 0 , row, -1 , board)){ win = true; }
+    	if(checkLocal(id, col, 1 , row, 0 , board)){ win = true; }
+    	if(checkLocal(id, col, -1 , row, 0 , board)){ win = true; }
+    	
+    	if(checkLocal(id, col, 1 , row, 1 , board)){ win = true; }
+    	if(checkLocal(id, col, 1 , row, -1 , board)){ win = true; }
+    	if(checkLocal(id, col, -1 , row, 1 , board)){ win = true; }
+    	if(checkLocal(id, col, -1 , row, -1 , board)){ win = true; }
+    	
+    	if(win == true && id == 1){ return Winner.PLAYER1; }
+    	if(win == true && id == 2){ return Winner.PLAYER2; }
+    	
+    	if(boardIsFull()){ return Winner.TIE; }
     	return Winner.NOT_FINISHED;
     }
 
