@@ -146,7 +146,12 @@ public class GameLogic implements IGameLogic {
     public Winner gameFinished() {
     	mirrorColumns();
     	Winner msg;
-    	if(checkAllDirections(playerID)){ System.out.println("HURRA!");  return Winner.PLAYER2;}
+    	if(checkAllDirections(playerID)){ 
+    		System.out.println("HURRA!");  
+    		if(playerID == 1){return Winner.PLAYER1;}
+    		else {return Winner.PLAYER2;}
+    		
+    		}
     	
     	if(boardIsFull()){ System.out.println("Tie!"); return Winner.TIE; }
     	else{ System.out.println("Next round..."); msg = Winner.NOT_FINISHED; }
