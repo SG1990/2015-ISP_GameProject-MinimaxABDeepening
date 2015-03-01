@@ -129,14 +129,30 @@ public class GameLogic implements IGameLogic {
     	return isFull;
     }
     
+    private void mirrorColumns(){
+    	int[][] tmpBoard = new int[x][y];
+    	for(int i = 0; i < x; i++){
+			for(int n = 0; n < y; n++){
+				tmpBoard[i][n] = board[i][n];
+			}
+    	}
+    	for(int i = 0; i < x; i++){
+			for(int n = 0; n < y; n++){
+				board[i][y - 1 - n] = tmpBoard[i][n];
+			}
+    	}
+    }
     
     public Winner gameFinished() {
-    	//TODO Write your implementation for this method
-    	if(checkAllDirections(1)){ System.out.println("YEPPPI"); return Winner.PLAYER1;}
-    	if(checkAllDirections(2)){ System.out.println("HURRA!"); return Winner.PLAYER2;}
+    	mirrorColumns();
+    	Winner msg;
+    	if(checkAllDirections(playerID)){ System.out.println("HURRA!");  return Winner.PLAYER2;}
     	
     	if(boardIsFull()){ System.out.println("Tie!"); return Winner.TIE; }
-    	else{ System.out.println("Next round..."); return Winner.NOT_FINISHED; }
+    	else{ System.out.println("Next round..."); msg = Winner.NOT_FINISHED; }
+    	
+    	mirrorColumns();
+    	return msg;
     }
     
 
