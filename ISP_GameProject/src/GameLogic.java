@@ -164,6 +164,7 @@ public class GameLogic implements IGameLogic {
     	return win;    	
     }
     
+
     /**
      * 
      * @param id, which player
@@ -236,7 +237,7 @@ public class GameLogic implements IGameLogic {
     				addToBoard(b, i, 2);
     			else
     				addToBoard(b, i, 1);
-    			results[i] = minValue(b);
+    			results[i] = minValue(b, i);
     			removeFromBoard(b, i);
     		}    			
     	}
@@ -249,54 +250,69 @@ public class GameLogic implements IGameLogic {
     	return max;
     }
     
-    private int maxValue(int[][] b) {
-    	Winner whoWins = gameFinished();
-    	if(whoWins == Winner.PLAYER1)
-    		//if(playerID == 1)
-    			return 1;
-    	else {
-    		int[] results  = new int[x];
-        	for(int i = 0 ; i < x ; i++)
-        	{
-        		if (b[i][0] != 0){
-        			addToBoard(b, i, playerID);
-        			results[i] = minValue(b);
-        			removeFromBoard(b, i);
-        		}    			
-        	}
-        	
-        	int max = -10;
-        	for(int i = 0 ; i < x ; i++)
-        		if(max < results[i])
-        			max = results[i];
-        	
-        	return max;
+    private int maxValue(int[][] b, int col) {
+    	int id = 0;
+    	if (playerID == 1)
+    		id = 2;
+    	else id = 1;
+    	
+    	Winner isWin = gameFinishedMM(id, col, b);
+    	switch(isWin)
+    	{
+    		case PLAYER2:
+    			return -1;    			
+    		case TIE:
+    			return 0;
+    			
+    		default:
+    			int[] results  = new int[x];
+            	for(int i = 0 ; i < x ; i++)
+            	{
+            		if (b[i][0] != 0){
+            			addToBoard(b, i, playerID);
+            			results[i] = minValue(b, i);
+            			removeFromBoard(b, i);
+            		}    			
+            	}
+            	
+            	int max = -10;
+            	for(int i = 0 ; i < x ; i++)
+            		if(max < results[i])
+            			max = results[i];
+            	
+            	return max;
     	}
     }
     
-    private int minValue(int[][] b) {
-    	if (isTerminal(b))
-    		return evaluate(b);
-    	else {
-    		int[] results  = new int[x];
-        	for(int i = 0 ; i < x ; i++)
-        	{
-        		if (b[i][0] != 0){
-        			if (playerID == 1)
-        				addToBoard(b, i, 2);
-        			else
-        				addToBoard(b, i, 1);
-        			results[i] = maxValue(b);
-        			removeFromBoard(b, i);
-        		}    			
-        	}
-        	
-        	int min = 10;
-        	for(int i = 0 ; i < x ; i++)
-        		if(min > results[i])
-        			min = results[i];
-        	
-        	return min;
+    private int minValue(int[][] b, int col) {    	
+    	Winner isWin = gameFinishedMM(playerID, col, b);
+    	switch(isWin)
+    	{
+    		case PLAYER1:
+    			return 1;    			
+    		case TIE:
+    			return 0;
+    			
+    		default:
+    			int[] results  = new int[x];
+            	for(int i = 0 ; i < x ; i++)
+            	{
+            		if (b[i][0] != 0){
+            			if (playerID == 1)
+            				addToBoard(b, i, 2);
+            			else
+            				addToBoard(b, i, 1);
+            			results[i] = maxValue(b, i);
+            			removeFromBoard(b, i);
+            		}    			
+            	}
+            	
+            	int min = 10;
+            	for(int i = 0 ; i < x ; i++)
+            		if(min > results[i])
+            			min = results[i];
+            	
+            	return min;    			 		
     	}
     }
     
@@ -309,7 +325,7 @@ public class GameLogic implements IGameLogic {
     				addToBoard(b, i, 2);
     			else
     				addToBoard(b, i, 1);
-    			results[i] = minValueAB(b, alpha, beta);
+    			results[i] = minValueAB(b, alpha, beta, i);
     			removeFromBoard(b, i);
     		}    			
     	}
@@ -322,58 +338,75 @@ public class GameLogic implements IGameLogic {
     	return max;
     }
     
-    private int[] maxValueAB(int[][] b, int alpha, int beta) {
-    	if (isTerminal(b))
-    		return new int[3]; //TODO
-    	else {
-    		int[][] results  = new int[x][3];
-        	for(int i = 0 ; i < x ; i++)
-        	{
-        		if (b[i][0] != 0){
-        			addToBoard(b, i, playerID);
-        			results[i] = minValueAB(b, alpha, beta);
-        			removeFromBoard(b, i);
-        			if (results[i][0] >= results[i][2]) return results[i];
-        			results[i][1] = Math.max(results[i][0], results[i][2]);
-        		}    			
-        	}
-        	
-        	int[] max = new int[3];
-        	max[0] = -10;
-        	for(int i = 0 ; i < x ; i++)
-        		if(max[0] < results[i][0])        		
-        			max = results[0];        			
-        	
-        	return max;
+    private int[] maxValueAB(int[][] b, int alpha, int beta, int col) {
+    	int id = 0;
+    	if (playerID == 1)
+    		id = 2;
+    	else id = 1;
+    	
+    	Winner isWin = gameFinishedMM(id, col, b);
+    	switch(isWin)
+    	{
+    		case PLAYER2:    			
+    			return new int[] {-1, alpha, beta};    			
+    		case TIE:
+    			return new int[] {0, alpha, beta};    
+    			
+    		default:
+    			int[][] results  = new int[x][3];
+            	for(int i = 0 ; i < x ; i++)
+            	{
+            		if (b[i][0] != 0){
+            			addToBoard(b, i, playerID);
+            			results[i] = minValueAB(b, alpha, beta, i);
+            			removeFromBoard(b, i);
+            			if (results[i][0] >= results[i][2]) return results[i];
+            			results[i][1] = Math.max(results[i][0], results[i][2]);
+            		}    			
+            	}
+            	
+            	int[] max = new int[3];
+            	max[0] = -10;
+            	for(int i = 0 ; i < x ; i++)
+            		if(max[0] < results[i][0])        		
+            			max = results[0];        			
+            	
+            	return max;
     	}
     }
     
-    private int[] minValueAB(int[][] b, int alpha, int beta) {
-    	if (isTerminal(b))
-    		return new int[3]; //TODO
-    	else {
-    		int[][] results  = new int[x][3];
-        	for(int i = 0 ; i < x ; i++)
-        	{
-        		if (b[i][0] != 0){
-        			if (playerID == 1)
-        				addToBoard(b, i, 2);
-        			else
-        				addToBoard(b, i, 1);
-        			results[i] = maxValueAB(b, alpha, beta);
-        			removeFromBoard(b, i);
-        			if (results[i][0] <= results[i][1]) return results[i];
-        			results[i][2] = Math.max(results[i][0], results[i][2]); 
-        		}    			
-        	}
-        	
-        	int[] min = new int[3];
-        	min[0] = 10;
-        	for(int i = 0 ; i < x ; i++)
-        		if(min[0] > results[i][0])
-        			min = results[i];
-        	
-        	return min;
+    private int[] minValueAB(int[][] b, int alpha, int beta, int col) {
+    	Winner isWin = gameFinishedMM(playerID, col, b);
+    	switch(isWin)
+    	{
+    		case PLAYER1:
+    			return new int[] {1, alpha, beta};    			
+    		case TIE:
+    			return new int[] {0, alpha, beta};
+    			
+    		default:
+    			int[][] results  = new int[x][3];
+            	for(int i = 0 ; i < x ; i++)
+            	{
+            		if (b[i][0] != 0){
+            			if (playerID == 1)
+            				addToBoard(b, i, 2);
+            			else
+            				addToBoard(b, i, 1);
+            			results[i] = maxValueAB(b, alpha, beta, i);
+            			removeFromBoard(b, i);
+            			if (results[i][0] <= results[i][1]) return results[i];
+            			results[i][2] = Math.max(results[i][0], results[i][2]); 
+            		}    			
+            	}
+            	
+            	int[] min = new int[3];
+            	min[0] = 10;
+            	for(int i = 0 ; i < x ; i++)
+            		if(min[0] > results[i][0])
+            			min = results[i];
+            	
+            	return min;
     	}
     }
     
@@ -398,19 +431,6 @@ public class GameLogic implements IGameLogic {
         	}
         }
    }
-    
-    private boolean isTerminal(int[][] b)
-    {
-    	//TODO
-    	
-    	return false;
-    }
-    
-    private int evaluate(int[][] b)
-    {
-    	//TODO
-    	return 0;
-    }
     
     private int[][] copyArray(int[][] oldArray) {
     	int[][] newArray = new int[oldArray.length][oldArray[0].length];
