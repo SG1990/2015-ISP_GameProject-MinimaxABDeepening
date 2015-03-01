@@ -1,3 +1,5 @@
+import java.util.Random;
+
 
 public class GameLogic implements IGameLogic {
     private int x = 0;  // counting horizontal, starting from left
@@ -139,8 +141,10 @@ public class GameLogic implements IGameLogic {
     
 
     public void insertCoin(int column, int playerID) {
-        for(int i = 0; i < y; i++){
-        	if(board[column][i] == 0){
+        for(int i = y - 1 ; i >= 0 ; i--)
+        {
+        	if(board[column][i] == 0)
+        	{
         		board[column][i] = playerID;
         		break;
         	}
@@ -149,8 +153,13 @@ public class GameLogic implements IGameLogic {
 
     
     public int decideNextMove() {
-        //TODO Write your implementation for this method
-    	int i = (int) (Math.random() * (x)); System.out.println(i); return i;
-    	//return 0;
+        Random rand = new Random();
+        int r;
+        
+        do
+        	r = rand.nextInt(x);
+        while(board[r][0] != 0);
+        
+        return r;
     }
 }
