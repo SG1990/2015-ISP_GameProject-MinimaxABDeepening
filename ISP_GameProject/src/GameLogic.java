@@ -160,6 +160,9 @@ public class GameLogic implements IGameLogic {
     	return msg;
     }
     
+    private Winner gameFinishedMM(int id, int col) {
+    	return Winner.NOT_FINISHED;
+    }
 
     public void insertCoin(int column, int playerID) {
         for(int i = y - 1 ; i >= 0 ; i--)
@@ -216,8 +219,10 @@ public class GameLogic implements IGameLogic {
     }
     
     private int maxValue(int[][] b) {
-    	if (isTerminal(b))
-    		return evaluate(b);
+    	Winner whoWins = gameFinished();
+    	if(whoWins == Winner.PLAYER1)
+    		//if(playerID == 1)
+    			return 1;
     	else {
     		int[] results  = new int[x];
         	for(int i = 0 ; i < x ; i++)
