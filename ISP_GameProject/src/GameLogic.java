@@ -158,8 +158,8 @@ public class GameLogic implements IGameLogic {
     	boolean win = true;
     	for(int i = 1; i < 4; i++){
     		try{
-    			if(board[col + (x * i)][row + (y * i)] != id){ win = false; }
-    		}catch(IndexOutOfBoundsException e){ win = false; }
+    			if(board[col + (x * i)][row + (y * i)] != id){ win = false; break;}
+    		}catch(IndexOutOfBoundsException e){ win = false; break;}
     	}
     	return win;    	
     }
