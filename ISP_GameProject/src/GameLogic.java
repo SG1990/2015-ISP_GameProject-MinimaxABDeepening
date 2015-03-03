@@ -7,6 +7,7 @@ public class GameLogic implements IGameLogic {
     private int playerID;
     private int[][] board;
     private static int depth;
+    private final int minTokenToWin = 3;
     
     public GameLogic() {
     	
@@ -34,7 +35,7 @@ public class GameLogic implements IGameLogic {
 			for(int n = 0; n < x; n++){
 				if(board[n][i] == playerID){
 					inARowCount++;
-					if(inARowCount >= 4){ return true; }
+					if(inARowCount >= minTokenToWin){ return true; }
 				}
 				else{ inARowCount = 0; }
 			}
@@ -46,7 +47,7 @@ public class GameLogic implements IGameLogic {
 			for(int n = 0; n < y; n++){
 				if(board[i][n] == playerID){
 					inARowCount++;
-					if(inARowCount >= 4){ return true; }
+					if(inARowCount >= minTokenToWin){ return true; }
 				}
 				else{ inARowCount = 0; }
 			}
@@ -66,7 +67,7 @@ public class GameLogic implements IGameLogic {
     			for(int n = 0; n < fieldsInDiagonal; n++){
     				if(board[i + n][0 + n] == playerID){ //###
     					inARowCount++;
-    					if(inARowCount >= 4){ return true; }
+    					if(inARowCount >= minTokenToWin){ return true; }
     				}
     				else{ inARowCount = 0; }	
     			}
@@ -80,7 +81,7 @@ public class GameLogic implements IGameLogic {
     			for(int n = 0; n < fieldsInDiagonal; n++){
     				if(board[0 + n][i - x + n] == playerID){ //###
     					inARowCount++;
-    					if(inARowCount >= 4){ return true; }
+    					if(inARowCount >= minTokenToWin){ return true; }
     				}
     				else{ inARowCount = 0; }	
     			}
@@ -98,7 +99,7 @@ public class GameLogic implements IGameLogic {
     			for(int n = 0; n < fieldsInDiagonal; n++){
     				if(board[i - n][0 + n] == playerID){ //###
     					inARowCount++;
-    					if(inARowCount >= 4){ return true; }
+    					if(inARowCount >= minTokenToWin){ return true; }
     				}
     				else{ inARowCount = 0; }	
     			}
@@ -112,7 +113,7 @@ public class GameLogic implements IGameLogic {
     			for(int n = 0; n < fieldsInDiagonal; n++){
     				if(board[x - 1 - n][i - x + n] == playerID){ //###
     					inARowCount++;
-    					if(inARowCount >= 4){ return true; }
+    					if(inARowCount >= minTokenToWin){ return true; }
     				}
     				else{ inARowCount = 0; }	
     			}
@@ -157,7 +158,7 @@ public class GameLogic implements IGameLogic {
     
     private boolean checkLocal(int id, int col, int x, int row, int y, int[][] board){
     	boolean win = true;
-    	for(int i = 1; i < 3; i++){
+    	for(int i = 1; i < minTokenToWin; i++){
     		try{
     			if(board[col + (x * i)][row + (y * i)] != id){ win = false; break;}
     		}catch(IndexOutOfBoundsException e){ win = false; break;}
