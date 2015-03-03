@@ -6,6 +6,7 @@ public class GameLogic implements IGameLogic {
     private int y = 0;  // counting vertical, starting at top
     private int playerID;
     private int[][] board;
+    private static int depth;
     
     public GameLogic() {
     	
@@ -156,7 +157,7 @@ public class GameLogic implements IGameLogic {
     
     private boolean checkLocal(int id, int col, int x, int row, int y, int[][] board){
     	boolean win = true;
-    	for(int i = 1; i < 4; i++){
+    	for(int i = 1; i < 3; i++){
     		try{
     			if(board[col + (x * i)][row + (y * i)] != id){ win = false; }
     		}catch(IndexOutOfBoundsException e){ win = false; }
@@ -180,14 +181,14 @@ public class GameLogic implements IGameLogic {
     	
     	boolean win = false;
     	if(checkLocal(id, col, 0 , row, 1 , board)){ win = true; }
-    	if(checkLocal(id, col, 0 , row, -1 , board)){ win = true; }
-    	if(checkLocal(id, col, 1 , row, 0 , board)){ win = true; }
-    	if(checkLocal(id, col, -1 , row, 0 , board)){ win = true; }
+    	if(win == false && checkLocal(id, col, 0 , row, -1 , board)){ win = true; }
+    	if(win == false && checkLocal(id, col, 1 , row, 0 , board)){ win = true; }
+    	if(win == false && checkLocal(id, col, -1 , row, 0 , board)){ win = true; }
     	
-    	if(checkLocal(id, col, 1 , row, 1 , board)){ win = true; }
-    	if(checkLocal(id, col, 1 , row, -1 , board)){ win = true; }
-    	if(checkLocal(id, col, -1 , row, 1 , board)){ win = true; }
-    	if(checkLocal(id, col, -1 , row, -1 , board)){ win = true; }
+    	if(win == false && checkLocal(id, col, 1 , row, 1 , board)){ win = true; }
+    	if(win == false && checkLocal(id, col, 1 , row, -1 , board)){ win = true; }
+    	if(win == false && checkLocal(id, col, -1 , row, 1 , board)){ win = true; }
+    	if(win == false && checkLocal(id, col, -1 , row, -1 , board)){ win = true; }
     	
     	if(win == true && id == 1){ return Winner.PLAYER1; }
     	if(win == true && id == 2){ return Winner.PLAYER2; }
@@ -220,6 +221,8 @@ public class GameLogic implements IGameLogic {
     
     public int decideNextMoveMM() {    	  	
     	int[][] boardCopy = copyArray(board);
+    	System.out.println("Commencing minimax");
+    	depth = 0;
     	return miniMaxDecision(boardCopy);
     }   
     
@@ -231,26 +234,33 @@ public class GameLogic implements IGameLogic {
     private int miniMaxDecision(int[][] b) {
     	int[] results  = new int[x];
     	for(int i = 0 ; i < x ; i++)
+    		results[i] = -10;
+    	for(int i = 0 ; i < x ; i++)
     	{
-    		if (b[i][0] != 0){
-    			if (playerID == 1)
-    				addToBoard(b, i, 2);
-    			else
-    				addToBoard(b, i, 1);
+    		if (b[i][0] == 0){
+    				addToBoard(b, i, playerID);
+    			depth++;
     			results[i] = minValue(b, i);
+    			depth--;
     			removeFromBoard(b, i);
     		}    			
     	}
     	
     	int max = -10;
+    	int move = -1;
     	for(int i = 0 ; i < x ; i++)
     		if(max < results[i])
+    		{
     			max = results[i];
+    			move = i;
+    		}
+    			
     	
-    	return max;
+    	return move;
     }
     
     private int maxValue(int[][] b, int col) {
+    	System.out.println("ply = " + depth);
     	int id = 0;
     	if (playerID == 1)
     		id = 2;
@@ -259,6 +269,7 @@ public class GameLogic implements IGameLogic {
     	Winner isWin = gameFinishedMM(id, col, b);
     	switch(isWin)
     	{
+    		case PLAYER1:
     		case PLAYER2:
     			return -1;    			
     		case TIE:
@@ -266,11 +277,15 @@ public class GameLogic implements IGameLogic {
     			
     		default:
     			int[] results  = new int[x];
+    			for(int i = 0 ; i < x ; i++)
+    	    		results[i] = -10;
             	for(int i = 0 ; i < x ; i++)
             	{
-            		if (b[i][0] != 0){
+            		if (b[i][0] == 0){
+            			depth++;
             			addToBoard(b, i, playerID);
             			results[i] = minValue(b, i);
+            			depth--;
             			removeFromBoard(b, i);
             		}    			
             	}
@@ -284,25 +299,31 @@ public class GameLogic implements IGameLogic {
     	}
     }
     
-    private int minValue(int[][] b, int col) {    	
+    private int minValue(int[][] b, int col) {  
+    	System.out.println("ply = " + depth);
     	Winner isWin = gameFinishedMM(playerID, col, b);
     	switch(isWin)
     	{
     		case PLAYER1:
+    		case PLAYER2:
     			return 1;    			
     		case TIE:
     			return 0;
     			
     		default:
     			int[] results  = new int[x];
+    			for(int i = 0 ; i < x ; i++)
+    	    		results[i] = 10;
             	for(int i = 0 ; i < x ; i++)
             	{
-            		if (b[i][0] != 0){
+            		if (b[i][0] == 0){
             			if (playerID == 1)
             				addToBoard(b, i, 2);
             			else
             				addToBoard(b, i, 1);
+            			depth++;
             			results[i] = maxValue(b, i);
+            			depth--;
             			removeFromBoard(b, i);
             		}    			
             	}
@@ -413,20 +434,20 @@ public class GameLogic implements IGameLogic {
     private void addToBoard(int[][] b, int col, int id) {
     	 for(int i = b[0].length - 1 ; i >= 0 ; i--)
          {
-         	if(board[col][i] == 0)
+         	if(b[col][i] == 0)
          	{
-         		board[col][i] = id;
+         		b[col][i] = id;
          		break;
          	}
          }
     }
     
     private void removeFromBoard(int[][] b, int col) {
-   	 for(int i = 0 ; i < b[0].length ; i--)
+   	 for(int i = 0 ; i < b[0].length ; i++)
         {
-        	if(board[col][i] != 0)
+        	if(b[col][i] != 0)
         	{
-        		board[col][i] = 0;
+        		b[col][i] = 0;
         		break;
         	}
         }
