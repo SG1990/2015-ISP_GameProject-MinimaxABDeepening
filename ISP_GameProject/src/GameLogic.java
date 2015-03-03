@@ -143,14 +143,14 @@ public class GameLogic implements IGameLogic {
     	if(checkAllDirections(2)){ System.out.println("HURRA!"); return Winner.PLAYER2; }
     	mirrorColumns();
     	
-    	if(boardIsFull()){ System.out.println("TIE!"); return Winner.TIE; }
+    	if(boardIsFull(board)){ System.out.println("TIE!"); return Winner.TIE; }
     	else{ System.out.println("Next round..."); return Winner.NOT_FINISHED; }
     }
     
-    private boolean boardIsFull(){
+    private boolean boardIsFull(int[][] b){
     	boolean isFull = true;
     	for(int i = 0; i < x; i++){
-    		if(board[i][0] == 0){ isFull = false; }
+    		if(b[i][0] == 0){ isFull = false; }
     	}
     	return isFull;
     }
@@ -177,7 +177,7 @@ public class GameLogic implements IGameLogic {
     private Winner gameFinishedMM(int id, int col, int[][] board) {
     	int row = -1; //getRow
     	for(int i = 0; i < y; i++){
-    		if(board[col][i] != 0){ row = i;} 
+    		if(board[col][i] != 0){ row = i; break;} 
     	}
     	
     	boolean win = false;
@@ -194,7 +194,7 @@ public class GameLogic implements IGameLogic {
     	if(win == true && id == 1){ return Winner.PLAYER1; }
     	if(win == true && id == 2){ return Winner.PLAYER2; }
     	
-    	if(boardIsFull()){ return Winner.TIE; }
+    	if(boardIsFull(board)){ return Winner.TIE; }
     	return Winner.NOT_FINISHED;
     }
 
@@ -209,7 +209,7 @@ public class GameLogic implements IGameLogic {
         }
     }
 
-    public int decideNextMove() {
+    public int decideNextMoveR() {
         Random rand = new Random();
         int r;
         
@@ -220,7 +220,7 @@ public class GameLogic implements IGameLogic {
         return r;
     }
     
-    public int decideNextMoveMM() {    	  	
+    public int decideNextMove() {    	  	
     	int[][] boardCopy = copyArray(board);
     	System.out.println("Commencing minimax");
     	depth = 0;
