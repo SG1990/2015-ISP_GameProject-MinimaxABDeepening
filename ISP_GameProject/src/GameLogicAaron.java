@@ -1,18 +1,14 @@
-import java.util.Random;
-
-
-public class GameLogic implements IGameLogic {
-    private int x = 0;  // counting horizontal, starting from left
+public class GameLogicAaron implements IGameLogic {
+	private int x = 0;  // counting horizontal, starting from left
     private int y = 0;  // counting vertical, starting at top
     private int playerID;
     private int[][] board;
-//    private static int depth;
+    private static int depth;
+    private final int maxDepth = 8; //Sample value. Needs to be determined by experimentation 
     private final int minTokenToWin = 4;
+    private final int valueOfWin = 500; //Should be less than 1000 now, but greater than any result of evaluate()
     
-    public GameLogic() {
-    	
-        //TODO Write your implementation for this method
-    }
+    public GameLogicAaron() {}
 	
     public void initializeGame(int x, int y, int playerID) {
         this.x = x;
@@ -24,8 +20,7 @@ public class GameLogic implements IGameLogic {
 				board[i][n] = 0;
 			}
     	}
-    }
-    
+    }    
     
     private boolean checkAllDirections(int playerID){
     	int inARowCount = 0;
@@ -164,8 +159,7 @@ public class GameLogic implements IGameLogic {
     		}catch(IndexOutOfBoundsException e){ win = false; break;}
     	}
     	return win;    	
-    }
-    
+    }    
 
     /**
      * 
@@ -207,133 +201,26 @@ public class GameLogic implements IGameLogic {
         		break;
         	}
         }
-    }
-
-    public int decideNextMoveR() {
-        Random rand = new Random();
-        int r;
-        
-        do
-        	r = rand.nextInt(x);
-        while(board[r][0] != 0);
-        
-        return r;
-    }
+    }     
     
-    public int decideNextMoveMM() {    	  	
+    public int decideNextMoveAB() {
     	int[][] boardCopy = copyArray(board);
-    	System.out.println("Commencing minimax");
-//    	depth = 0;
-    	return miniMaxDecision(boardCopy);
-    }   
-    
-    public int decideNextMove() {
-    	int[][] boardCopy = copyArray(board);
+    	depth = 0;
+    	System.out.println("Commencing Alpha-Beta");
     	return alphaBetaSearch(boardCopy, -1000, 1000);
     }
     
-    private int miniMaxDecision(int[][] b) {
-    	int[] results  = new int[x];
-    	for(int i = 0 ; i < x ; i++)
-    		results[i] = -10;
-    	for(int i = 0 ; i < x ; i++)
-    	{
-    		if (b[i][0] == 0){
-    				addToBoard(b, i, playerID);
-    			results[i] = minValue(b, i);
-    			removeFromBoard(b, i);
-    		}    			
-    	}
-    	
-    	int max = -10;
-    	int move = -1;
-    	for(int i = 0 ; i < x ; i++)
-    		if(max < results[i])
-    		{
-    			max = results[i];
-    			move = i;
-    		}
-    			
-    	
-    	return move;
+    public int decideNextMove() {
+    	int[][] boardCopy = copyArray(board);
+    	depth = 0;
+    	System.out.println("Commencing Cut-Off Alpha-Beta");
+    	return alphaBetaSearchCutOff(boardCopy, -1000, 1000);
     }
-    
-    private int maxValue(int[][] b, int col) {
-    	int id = 0;
-    	if (playerID == 1)
-    		id = 2;
-    	else id = 1;
-    	
-    	Winner isWin = gameFinishedMM(id, col, b);
-    	switch(isWin)
-    	{
-    		case PLAYER1:
-    		case PLAYER2:
-    			return -1;    			
-    		case TIE:
-    			return 0;
-    			
-    		default:
-    			int[] results  = new int[x];
-    			for(int i = 0 ; i < x ; i++)
-    	    		results[i] = -10;
-            	for(int i = 0 ; i < x ; i++)
-            	{
-            		if (b[i][0] == 0){
-            			addToBoard(b, i, playerID);
-            			results[i] = minValue(b, i);
-            			removeFromBoard(b, i);
-            		}    			
-            	}
-            	
-            	int max = -10;
-            	for(int i = 0 ; i < x ; i++)
-            		if(max < results[i])
-            			max = results[i];
-            	
-            	return max;
-    	}
-    }
-    
-    private int minValue(int[][] b, int col) {  
-    	Winner isWin = gameFinishedMM(playerID, col, b);
-    	switch(isWin)
-    	{
-    		case PLAYER1:
-    		case PLAYER2:
-    			return 1;    			
-    		case TIE:
-    			return 0;
-    			
-    		default:
-    			int[] results  = new int[x];
-    			for(int i = 0 ; i < x ; i++)
-    	    		results[i] = 10;
-            	for(int i = 0 ; i < x ; i++)
-            	{
-            		if (b[i][0] == 0){
-            			if (playerID == 1)
-            				addToBoard(b, i, 2);
-            			else
-            				addToBoard(b, i, 1);
-            			results[i] = maxValue(b, i);
-            			removeFromBoard(b, i);
-            		}    			
-            	}
-            	
-            	int min = 10;
-            	for(int i = 0 ; i < x ; i++)
-            		if(min > results[i])
-            			min = results[i];
-            	
-            	return min;    			 		
-    	}
-    }
-    
+        
     private int alphaBetaSearch(int[][] b, int alpha, int beta) {
     	int[][] results  = new int[x][3];
     	for(int i = 0 ; i < x ; i++)
-    		results[i][0] = -10;
+    		results[i][0] = -1000;
     	for(int i = 0 ; i < x ; i++)
     	{
     		if (b[i][0] == 0){
@@ -343,7 +230,7 @@ public class GameLogic implements IGameLogic {
     		}    			
     	}
     	
-    	int max = -10;
+    	int max = -1000;
     	int move = -1;
     	for(int i = 0 ; i < x ; i++)
     		if(max < results[i][0])
@@ -373,12 +260,14 @@ public class GameLogic implements IGameLogic {
     		default:
     			int[][] results  = new int[x][3];
     			for(int i = 0 ; i < x ; i++)
-    	    		results[i][0] = -10;
+    	    		results[i][0] = -1000;
             	for(int i = 0 ; i < x ; i++)
             	{
             		if (b[i][0] == 0){
             			addToBoard(b, i, playerID);
+            			depth++;
             			results[i] = minValueAB(b, alpha, beta, i);
+            			depth--;
             			removeFromBoard(b, i);
             			if (results[i][0] >= beta) return results[i];
             			results[i][1] = Math.max(results[i][0], alpha);
@@ -387,7 +276,7 @@ public class GameLogic implements IGameLogic {
             	}
             	
             	int[] max = new int[3];
-            	max[0] = -10;
+            	max[0] = -1000;
             	for(int i = 0 ; i < x ; i++)
             		if(max[0] < results[i][0])        		
             			max = results[i];        			
@@ -409,7 +298,7 @@ public class GameLogic implements IGameLogic {
     		default:
     			int[][] results  = new int[x][3];
     			for(int i = 0 ; i < x ; i++)
-    	    		results[i][0] = 10;
+    	    		results[i][0] = 1000;
             	for(int i = 0 ; i < x ; i++)
             	{
             		if (b[i][0] == 0){
@@ -417,7 +306,9 @@ public class GameLogic implements IGameLogic {
             				addToBoard(b, i, 2);
             			else
             				addToBoard(b, i, 1);
+            			depth++;
             			results[i] = maxValueAB(b, alpha, beta, i);
+            			depth--;
             			removeFromBoard(b, i);
             			if (results[i][0] <= alpha) return results[i];
             			results[i][2] = Math.min(results[i][0], beta); 
@@ -426,13 +317,138 @@ public class GameLogic implements IGameLogic {
             	}
             	
             	int[] min = new int[3];
-            	min[0] = 10;
+            	min[0] = 1000;
             	for(int i = 0 ; i < x ; i++)
             		if(min[0] > results[i][0])
             			min = results[i];
             	
             	return min;
     	}
+    }
+    
+    private int alphaBetaSearchCutOff(int[][] b, int alpha, int beta) {
+    	int[][] results  = new int[x][3];
+    	for(int i = 0 ; i < x ; i++)
+    		results[i][0] = -1000;
+    	for(int i = 0 ; i < x ; i++)
+    	{
+    		if (b[i][0] == 0){
+    			addToBoard(b, i, playerID);
+    			results[i] = minValueABCO(b, alpha, beta, i);
+    			removeFromBoard(b, i);
+    		}    			
+    	}
+    	
+    	int max = -1000;
+    	int move = -1;
+    	for(int i = 0 ; i < x ; i++)
+    		if(max < results[i][0])
+    		{
+    			max = results[i][0];
+    			move = i;
+    		}    			
+    	
+    	return move;
+    }    
+    
+    private int[] maxValueABCO(int[][] b, int alpha, int beta, int col) {
+    	int id = 0;
+    	if (playerID == 1)
+    		id = 2;
+    	else id = 1;    	
+    	
+    	Winner isWin = gameFinishedMM(id, col, b);
+    	switch(isWin)
+    	{
+    		case PLAYER1:
+    		case PLAYER2:    			
+    			return new int[] {-valueOfWin, alpha, beta};    		
+    		case TIE:
+    			return new int[] {0, alpha, beta};    
+    			
+    		default:
+    			if(depth >= maxDepth)
+    				return  new int[] {evaluate(id, col, b), alpha, beta}; 
+    			else
+    			{
+    				int[][] results  = new int[x][3];
+        			for(int i = 0 ; i < x ; i++)
+        	    		results[i][0] = -1000;
+                	for(int i = 0 ; i < x ; i++)
+                	{
+                		if (b[i][0] == 0){
+                			addToBoard(b, i, playerID);
+                			depth++;
+                			results[i] = minValueABCO(b, alpha, beta, i);
+                			depth--;
+                			removeFromBoard(b, i);
+                			if (results[i][0] >= beta) return results[i];
+                			results[i][1] = Math.max(results[i][0], alpha);
+                			results[i][2] = beta;
+                		}    			
+                	}
+                	
+                	int[] max = new int[3];
+                	max[0] = -1000;
+                	for(int i = 0 ; i < x ; i++)
+                		if(max[0] < results[i][0])        		
+                			max = results[i];        			
+                	
+                	return max;
+    			}    			
+    	}
+    }
+    
+    private int[] minValueABCO(int[][] b, int alpha, int beta, int col) {
+    	Winner isWin = gameFinishedMM(playerID, col, b);
+    	switch(isWin)
+    	{
+    		case PLAYER1:
+    		case PLAYER2:
+    			return new int[] {valueOfWin, alpha, beta};    			
+    		case TIE:
+    			return new int[] {0, alpha, beta};
+    			
+    		default:
+    			if(depth >= maxDepth)
+    				return  new int[] {evaluate(playerID, col, b), alpha, beta}; 
+    			else
+    			{
+    				int[][] results  = new int[x][3];
+        			for(int i = 0 ; i < x ; i++)
+        	    		results[i][0] = 1000;
+                	for(int i = 0 ; i < x ; i++)
+                	{
+                		if (b[i][0] == 0){
+                			if (playerID == 1)
+                				addToBoard(b, i, 2);
+                			else
+                				addToBoard(b, i, 1);
+                			depth++;
+                			results[i] = maxValueABCO(b, alpha, beta, i);
+                			depth--;
+                			removeFromBoard(b, i);
+                			if (results[i][0] <= alpha) return results[i];
+                			results[i][2] = Math.min(results[i][0], beta); 
+                			results[i][1] = alpha;
+                		}    			
+                	}
+                	
+                	int[] min = new int[3];
+                	min[0] = 1000;
+                	for(int i = 0 ; i < x ; i++)
+                		if(min[0] > results[i][0])
+                			min = results[i];
+                	
+                	return min;
+    			}
+    	}
+    }
+    
+    private int evaluate(int id, int col, int[][] board)
+    {
+    	//TODO
+    	return 10;
     }
     
     private void addToBoard(int[][] b, int col, int id) {
@@ -465,4 +481,5 @@ public class GameLogic implements IGameLogic {
     	
     	return newArray;
     }
+
 }
