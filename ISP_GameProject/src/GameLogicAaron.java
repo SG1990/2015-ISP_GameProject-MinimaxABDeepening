@@ -445,10 +445,33 @@ public class GameLogicAaron implements IGameLogic {
     	}
     }
     
-    private int evaluate(int id, int col, int[][] board)
-    {
-    	//TODO
-    	return 10;
+    private int countLocalCluster(int id, int col, int x, int row, int y, int[][] board){
+    	int counter = 0;
+    	for(int i = 1; i < minTokenToWin; i++){
+    		try{
+    			if(board[col + (x * i)][row + (y * i)] != id){ break; }
+    		}catch(IndexOutOfBoundsException e){ break; }
+    		counter++;
+    	}
+    	return counter;    	
+    }    
+
+    private int evaluate(int id, int col, int[][] board){
+    	int row = -1; //getRow
+    	for(int i = 0; i < y; i++){
+    		if(board[col][i] != 0){ row = i; break;} 
+    	}
+    	
+    	return 1 +
+    	countLocalCluster(id, col, 0 , row, 1 , board) +
+    	countLocalCluster(id, col, 0 , row, -1 , board) +
+    	countLocalCluster(id, col, 1 , row, 0 , board) +
+    	countLocalCluster(id, col, -1 , row, 0 , board) +
+    	
+    	countLocalCluster(id, col, 1 , row, 1 , board) +
+    	countLocalCluster(id, col, 1 , row, -1 , board) +
+    	countLocalCluster(id, col, -1 , row, 1 , board) +
+    	countLocalCluster(id, col, -1 , row, -1 , board);
     }
     
     private void addToBoard(int[][] b, int col, int id) {
