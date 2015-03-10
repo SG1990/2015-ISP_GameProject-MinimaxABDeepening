@@ -4,7 +4,7 @@ public class GameLogicAaron implements IGameLogic {
     private int playerID;
     private int[][] board;
     private static int depth;
-    private final int maxDepth = 8; //Sample value. Needs to be determined by experimentation 
+    private final int maxDepth = 7; //Sample value. Needs to be determined by experimentation 
     private final int minTokenToWin = 4;
     private final int valueOfWin = 500; //Should be less than 1000 now, but greater than any result of evaluate()
     
@@ -152,13 +152,32 @@ public class GameLogicAaron implements IGameLogic {
     
     
     private boolean checkLocal(int id, int col, int x, int row, int y, int[][] board){
-    	boolean win = true;
-    	for(int i = 1; i < minTokenToWin; i++){
-    		try{
-    			if(board[col + (x * i)][row + (y * i)] != id){ win = false; break;}
-    		}catch(IndexOutOfBoundsException e){ win = false; break;}
-    	}
-    	return win;    	
+    	boolean win = false;
+    	boolean block = false;
+		boolean reverseBlock = false;
+		int window = 0;		
+    	
+    	for (int i = 1 ; i < minTokenToWin ; i++)
+		{
+			if(!block){
+				try {
+	    			if(board[col + (x * i)][row + (y * i)] != id) block = true;
+	    			else window++;
+	    		} catch(IndexOutOfBoundsException e){ block = true; }				
+			}				
+			
+			if(!reverseBlock){
+				try {
+	    			if(board[col + (-x * i)][row + (-y * i)] != id) reverseBlock = true;
+	    			else window++;
+	    		} catch(IndexOutOfBoundsException e){ reverseBlock = true; }	
+			}			
+			
+			if(block && reverseBlock) break;				
+		}
+		
+		if(window >= minTokenToWin -1) win = true;
+		return win; 	
     }    
 
     /**

@@ -1,10 +1,10 @@
 public class GameLogicAlex implements IGameLogic {
     private int x = 0;  // counting horizontal, starting from left
-    private int y = 0;  // counting vertical, starting at top
+    private int y = 0;  // counting vertical, starting at the top
     private int playerID;
     private int[][] board;
     private static int depth;
-    private final int maxDepth = 8; //Sample value. Needs to be determined by experimentation 
+    private final int maxDepth = 7; //Sample value. Needs to be determined by experimentation 
     private final int minTokenToWin = 4;
     private final int valueOfWin = 500; //Should be less than 1000 now, but greater than any result of evaluate()
     
@@ -152,13 +152,32 @@ public class GameLogicAlex implements IGameLogic {
     
     
     private boolean checkLocal(int id, int col, int x, int row, int y, int[][] board){
-    	boolean win = true;
-    	for(int i = 1; i < minTokenToWin; i++){
-    		try{
-    			if(board[col + (x * i)][row + (y * i)] != id){ win = false; break;}
-    		}catch(IndexOutOfBoundsException e){ win = false; break;}
-    	}
-    	return win;    	
+    	boolean win = false;
+    	boolean block = false;
+		boolean reverseBlock = false;
+		int window = 0;		
+    	
+    	for (int i = 1 ; i < minTokenToWin ; i++)
+		{
+			if(!block){
+				try {
+	    			if(board[col + (x * i)][row + (y * i)] != id) block = true;
+	    			else window++;
+	    		} catch(IndexOutOfBoundsException e){ block = true; }				
+			}				
+			
+			if(!reverseBlock){
+				try {
+	    			if(board[col + (-x * i)][row + (-y * i)] != id) reverseBlock = true;
+	    			else window++;
+	    		} catch(IndexOutOfBoundsException e){ reverseBlock = true; }	
+			}			
+			
+			if(block && reverseBlock) break;				
+		}
+		
+		if(window >= minTokenToWin -1) win = true;
+		return win;    	
     }    
 
     /**
@@ -445,10 +464,54 @@ public class GameLogicAlex implements IGameLogic {
     	}
     }
     
-    private int evaluate(int id, int col, int[][] board)
-    {
-    	//TODO
-    	return 10;
+    private int countOpenDirections(int id, int col, int row, int x, int y, int[][] board){
+    	int counter = 0;		
+		boolean block = false;
+		boolean reverseBlock = false;
+		int window = 0;
+		
+		int enemy = -1;
+    	if (id == 1)
+    		enemy = 2;
+    	else enemy = 1;
+		
+		for (int i = 1 ; i < minTokenToWin ; i++)
+		{
+			if(!block){
+				try {
+	    			if(board[col + (x * i)][row + (y * i)] == enemy) block = true; 
+	    			else if(board[col + (x * i)][row + (y * i)] == id) { counter++; window++; }
+	    			else window++;
+	    		} catch(IndexOutOfBoundsException e){ block = true; }				
+			}				
+			
+			if(!reverseBlock){
+				try {
+	    			if(board[col + (-x * i)][row + (-y * i)] == enemy) reverseBlock = true;
+	    			else if(board[col + (-x * i)][row + (-y * i)] == id) { counter++; window++;	}
+	    			else window++;
+	    		} catch(IndexOutOfBoundsException e){ reverseBlock = true; }	
+			}			
+			
+			if(block && reverseBlock) break;				
+		}
+		
+		if(window >= minTokenToWin -1) counter++;
+		else counter = 0;
+		return counter;
+    } 
+    
+    private int evaluate(int id, int col, int[][] board) {
+    	int row = -1; //getRow
+    	for(int i = 0; i < y; i++){
+    		if(board[col][i] != 0){ row = i; break;} 
+    	}
+    	
+    	return 
+    			countOpenDirections(id, col, row, 1, 0, board) +
+    			countOpenDirections(id, col, row, 0, 1, board) +
+    	    	countOpenDirections(id, col, row, 1, 1, board) +
+    	    	countOpenDirections(id, col, row, 1, -1, board);
     }
     
     private void addToBoard(int[][] b, int col, int id) {
