@@ -4,7 +4,7 @@ public class GameLogicAlex implements IGameLogic {
     private int playerID;
     private int[][] board;
     private static int depth;
-    private final int maxDepth = 7; //Sample value. Needs to be determined by experimentation 
+    private final int maxDepth = 11; //Sample value. Needs to be determined by experimentation 
     private final int minTokenToWin = 4;
     private final int valueOfWin = 500; //Should be less than 1000 now, but greater than any result of evaluate()
     
@@ -286,8 +286,8 @@ public class GameLogicAlex implements IGameLogic {
                 			depth--;
                 			removeFromBoard(b, i);
                 			if (results[i][0] >= beta) return results[i];
-                			results[i][1] = Math.max(results[i][0], alpha);
-                			results[i][2] = beta;
+                			alpha = Math.max(results[i][0], alpha);
+                			//results[i][2] = beta;
                 		}    			
                 	}
                 	
@@ -332,8 +332,8 @@ public class GameLogicAlex implements IGameLogic {
                 			depth--;
                 			removeFromBoard(b, i);
                 			if (results[i][0] <= alpha) return results[i];
-                			results[i][2] = Math.min(results[i][0], beta); 
-                			results[i][1] = alpha;
+                			beta = Math.min(results[i][0], beta); 
+                			//results[i][1] = alpha;
                 		}    			
                 	}
                 	
